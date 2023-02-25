@@ -9,36 +9,54 @@ static int lomuto(void *array, int left, int right, size_t elem_sz,
 static void quicksort_helper(void *array, int left, int right, size_t elem_sz,
                              int (*cmp) (const void*, const void*));
 
-/**
- * Swaps the values in two pointers.
- *
- * Casts the void pointers to type (char *) and works with them as char pointers
- * for the remainder of the function. Swaps one byte at a time, until all 'size'
- * bytes have been swapped. For example, if ints are passed in, size will be 4
- * and this function will swap 4 bytes starting at a and b pointers.
- */
 static void swap(void *a, void *b, size_t size) {
-    // TODO
+	char *p = a, *q = b, tmp;
+    	for (size_t i = 0; i < size; i++) {
+        	tmp = *(p + i);
+        	*(p + i) = *(q + i);
+        	*(q + i) = tmp;
+    	}
 }
 
-/**
- * Partitions array around a pivot, utilizing the swap function. Each time the
- * function runs, the pivot is placed into the correct index of the array in
- * sorted order. All elements less than the pivot should be to its left, and all
- * elements greater than or equal to the pivot should be to its right.
- */
 static int lomuto(void *array, int left, int right, size_t elem_sz,
                   int (*cmp) (const void*, const void*)) {
-    // TODO
+    	char *pivot = (char*) array + right * elem_sz;
+    	int i = left - 1;
+    	for (int j = left; j < right; j++) {
+        	char *elem_j = (char*) array + j * elem_sz;
+        	if (cmp(elem_j, pivot) < 0) {
+            		i++;
+            		swap((char*) array + i * elem_sz, elem_j, elem_sz);
+        	}
+    	}
+    	swap((char*) array + (i+1) * elem_sz, pivot, elem_sz);
+    	return i+1;
 }
 
-/**
- * Sorts with lomuto partitioning, with recursive calls on each side of the
- * pivot.
- * This is the function that does the work, since it takes in both left and
- * right index values.
- */
 static void quicksort_helper(void *array, int left, int right, size_t elem_sz,
                              int (*cmp) (const void*, const void*)) {
-    // TODO
+    	if (left < right) {
+        	int pivot = lomuto(array, left, right, elem_sz, cmp);
+        	quicksort_helper(array, left, pivot-1, elem_sz, cmp);
+        	quicksort_helper(array, pivot+1, right, elem_sz, cmp);
+    	}
 }
+
+int int_cmp(const void *a, const void *b) {
+    int int_a = *((int*) a);
+    int int_b = *((int*) b);
+    return (int_a > int_b) - (int_a < int_b);
+}
+
+int dbl_cmp(const void *a, const void *b) {
+    double double_a = *((double*) a);
+    double double_b = *((double*) b);
+    return (double_a > double_b) - (double_a < double_b);
+}
+
+int str_cmp(const void *a, const void *b) {
+    const char *char_a = *(const char**) a;
+    const char *char_b = *(const char**) b;
+    return strcmp(char_a, char_b);
+}
+
