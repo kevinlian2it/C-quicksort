@@ -39,6 +39,5 @@ int str_cmp(const void *a, const void *b);
  */
 void quicksort(void *array, size_t len, size_t elem_sz,
                int (*cmp) (const void*, const void*));
-	
 
 #endif
