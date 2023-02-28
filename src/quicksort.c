@@ -59,4 +59,6 @@ int str_cmp(const void *a, const void *b) {
     const char *char_b = *(const char**) b;
     return strcmp(char_a, char_b);
 }
-
+void quicksort(void *array, size_t len, size_t elem_sz, int (*cmp) (const void*, const void*)) {
+	quicksort_helper(array, 0, (int)len-1, elem_sz, cmp);
+}
