@@ -9,11 +9,11 @@
 #define MAX_ELEMENTS 1024
 
 void display_usage() {
-    printf("Usage: ./sort [-i|-d] [filename]\n");
-    printf("   -i: Specifies the input contains ints.\n");
-    printf("   -d: Specifies the input contains doubles.\n");
-    printf("   filename: The file to sort. If no file is supplied, input is read from\n             stdin.\n");
-    printf("   No flags defaults to sorting strings.\n");
+	printf("Usage: ./sort [-i|-d] [filename]\n");
+    	printf("   -i: Specifies the input contains ints.\n");
+    	printf("   -d: Specifies the input contains doubles.\n");
+    	printf("   filename: The file to sort. If no file is supplied, input is read from\n             stdin.\n");
+    	printf("   No flags defaults to sorting strings.\n");
 }
 
 int main(int argc, char** argv) {
@@ -44,43 +44,64 @@ int main(int argc, char** argv) {
         if (optind == argc-1) {
                 filename = argv[optind];
         }
-        FILE* input = stdin;
-        if(filename) {
-                input = fopen(filename, "r");
-                if(input == NULL) {
-                        fprintf(stderr, "Error: Cannot open '%s'. No such file or directory.\n", filename);
-                        return EXIT_FAILURE;
-                }
+	
+	FILE* input = stdin;
+	if (filename) {
+    		input = fopen(filename, "r");
+    		if (input == NULL) {
+        		fprintf(stderr, "Error: Cannot open '%s'. No such file or directory.\n", filename);
+        		return EXIT_FAILURE;
+    		}
+	}
+	void **input_arr = malloc(MAX_ELEMENTS * sizeof(void *));
+	int num_elements = 0;
+	char *buf = malloc(MAX_STRLEN);
+	char *line;
+	
+	if (!input) {
+	    fprintf(stderr, "Failed to open input file\n");
+	    exit(1);
+	}
+
+	while (num_elements < MAX_ELEMENTS && fgets(buf, MAX_STRLEN, input)) {
+	    line = strchr(buf, '\n');
+	    if (line) {
+	        *line = '\0';
+    		} 
+	    else {
+	        buf[MAX_STRLEN - 1] = '\0';
+	    }
+	    int c;
+	    while ((c = fgetc(input)) != '\n' && c != EOF);
+	    input_arr[num_elements] = strdup(buf);
+	    num_elements++;
+	}
+		
+	printf("Input array:\n");
+	for (int i = 0; i < num_elements; i++) {
+	    printf("%s\n", (char *)input_arr[i]);
+	}
+  	
+	printf("Weird input array:%s\n",(char *)input_arr);	
+       
+	if (flag_int) {
+    		quicksort((int **)input_arr, num_elements, sizeof(int *), int_cmp);
+	} else if (flag_db) {
+    		quicksort((double **)input_arr, num_elements, sizeof(double *), dbl_cmp);
+	} else {
+    		quicksort((char **)input_arr, num_elements, sizeof(char *), str_cmp);
+	}
+	
+	printf("Array after sorted:\n");
+        for (int i = 0; i < num_elements; i++) {
+            printf("%s\n", (char *)input_arr[i]);
         }
 
-        char input_arr[MAX_ELEMENTS][MAX_STRLEN];
-        int num_elements = 0;
-        while (num_elements < MAX_ELEMENTS && fgets(input_arr[num_elements], MAX_STRLEN, input)) {
- 	 	  char* newline = strchr(input_arr[num_elements], '\n');
- 	 	  if(newline) {
- 	       		*newline = '\0';
-    	   	  }
-    	   	  else {
-        		input_arr[num_elements][MAX_STRLEN-1] = '\0';
-        		while(fgetc(input) != '\n' && !feof(input)); // consume remaining characters in the line
-    		  }
-    		  num_elements++;
-	}
-        
-	if(flag_int) {
-		quicksort((void *) input_arr, num_elements, sizeof(input_arr[0]), int_cmp);                		
-        }
-        else if(flag_db) {
-                quicksort((void *) input_arr, num_elements, sizeof(input_arr[0]), dbl_cmp);
-	}
-        else {
-		quicksort((void *) input_arr, num_elements, sizeof(input_arr[0]), str_cmp);                
-	}
-	for(int i = 0;i < num_elements; i++) {
-                printf("%s\n", input_arr[i]);
-        }
+	free(input_arr);
+	free(buf);
+
         if(filename) {
-                fclose(input);
+        	fclose(input);
         }
         return EXIT_SUCCESS;
-} 
+}
