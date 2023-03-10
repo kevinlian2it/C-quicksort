@@ -63,10 +63,19 @@ int main(int argc, char** argv) {
 
         // Read the data into an array
     char** data = (char**) malloc(MAX_ELEMENTS * sizeof(char*));
+    if (data == NULL) {
+        fprintf(stderr, "Error: malloc failed to allocate memory.\n");
+        return EXIT_FAILURE;
+    }
     int i;
     for (i = 0; i < MAX_ELEMENTS; i++) {
         char* str = (char*) malloc(MAX_STRLEN * sizeof(char));
-        if (!fgets(str, MAX_STRLEN, fp)) {
+        if (str == NULL) {
+        	fprintf(stderr, "Error: malloc failed to allocate memory.\n");
+        	free(data);
+		return EXIT_FAILURE;
+    	}
+	if (!fgets(str, MAX_STRLEN, fp)) {
             free(str);
             break;
         }
@@ -83,6 +92,11 @@ int main(int argc, char** argv) {
     // Sort the data
 	if (flag_int) {
     int* int_data = (int*) malloc(num_elements * sizeof(int));
+    if (int_data == NULL) {
+        fprintf(stderr, "Error: malloc failed to allocate memory.\n");
+	free(data);
+        return EXIT_FAILURE;
+    }
     for (i = 0; i < num_elements; i++) {
         int_data[i] = atoi(data[i]);
     }
@@ -93,6 +107,11 @@ int main(int argc, char** argv) {
     free(int_data);
 } else if (flag_db) {
     double* db_data = (double*) malloc(num_elements * sizeof(double));
+    if (db_data == NULL) {
+        fprintf(stderr, "Error: malloc failed to allocate memory.\n");
+	free(data);
+        return EXIT_FAILURE;
+    }
     for (i = 0; i < num_elements; i++) {
         db_data[i] = atof(data[i]);
     }
@@ -107,10 +126,10 @@ int main(int argc, char** argv) {
         printf("%s\n", data[i]);
     }
 }
-    for (i = 0; i < num_elements; i++) {
-    	free(data[i]);
+for (i = 0; i < num_elements; i++) {
+        free(data[i]);
     }
-    free(data);
+free(data);
 
     // Close the file
     if (filename) {
