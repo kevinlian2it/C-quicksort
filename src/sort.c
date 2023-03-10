@@ -53,28 +53,54 @@ int main(int argc, char** argv) {
 			return EXIT_FAILURE;
 		}
 	}
+	char **input_arr = (char **)malloc(MAX_ELEMENTS * sizeof(char *));
+	if (input_arr == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed.\n");
+        return EXIT_FAILURE;
+    	}
 
-	char input_arr[MAX_ELEMENTS][MAX_STRLEN];
-	int num_elements = 0;
-	while (num_elements < MAX_ELEMENTS && fgets(input_arr[num_elements], MAX_STRLEN, input)) {
-		char* newline = strchr(input_arr[num_elements], '\n');
-		if(newline) {
-			*newline = '\0';
-		}
-		num_elements++;
-	}
+    	for (int i = 0; i < MAX_ELEMENTS; i++) {
+        	input_arr[i] = (char *)malloc(MAX_STRLEN * sizeof(char));
+
+        	if (input_arr[i] == NULL) {
+            		fprintf(stderr, "Error: Memory allocation failed.\n");
+
+            		for (int j = 0; j < i; j++) {
+                	free(input_arr[j]);
+            	}
+
+            	free(input_arr);
+            	return EXIT_FAILURE;
+        	}
+    	}
+
+    	int num_elements = 0;
+
+    	while (num_elements < MAX_ELEMENTS && fgets(input_arr[num_elements], MAX_STRLEN, input)) {
+        	char* newline = strchr(input_arr[num_elements], '\n');
+	
+        	if (newline) {
+            		*newline = '\0';
+        	}
+
+        	num_elements++;
+    	}
+for(int i = 0;i < num_elements; i++) {
+                printf("%s\n", input_arr[i]);
+        }	
 	if(flag_int + flag_db == 2) {
                 fprintf(stderr, "Error: Too many flags specified.\n");
                 return EXIT_FAILURE;
         }
 	if(flag_int) {
-		quicksort(input_arr,sizeof(input_arr),sizeof(int),int_cmp);
+		quicksort(*input_arr,sizeof(input_arr),sizeof(int),int_cmp);
 	}
 	else if(flag_db) {
-		quicksort(input_arr,sizeof(input_arr),sizeof(double),dbl_cmp);
+		quicksort(*input_arr,sizeof(input_arr),sizeof(double),dbl_cmp);
 	}
 	else {
-		quicksort(input_arr,sizeof(input_arr),sizeof(char*),str_cmp);		}
+		quicksort(*input_arr,sizeof(input_arr),sizeof(char*),str_cmp);		
+	}
 	for(int i = 0;i < num_elements; i++) {
 		printf("%s\n", input_arr[i]);
 	}

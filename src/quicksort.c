@@ -20,17 +20,16 @@ static void swap(void *a, void *b, size_t size) {
 
 static int lomuto(void *array, int left, int right, size_t elem_sz,
                   int (*cmp) (const void*, const void*)) {
-    	char *pivot = (char*) array + right * elem_sz;
-    	int i = left - 1;
-    	for (int j = left; j < right; j++) {
-        	char *elem_j = (char*) array + j * elem_sz;
-        	if (cmp(elem_j, pivot) < 0) {
-            		i++;
-            		swap((char*) array + i * elem_sz, elem_j, elem_sz);
-        	}
-    	}
-    	swap((char*) array + (i+1) * elem_sz, pivot, elem_sz);
-    	return i+1;
+	void* p = (char *)array + left * elem_sz;
+	int s = left;
+	for(int i = left+1;i <= right;i++) {
+		if(cmp((char *)array + i * elem_sz,p) < 0 ) {
+			s++;
+			swap((char *)array + s,(char *)array + i,elem_sz);
+		}
+	}
+	swap((char *)array + left, (char *)array + s,elem_sz);
+	return s;
 }
 
 static void quicksort_helper(void *array, int left, int right, size_t elem_sz,
