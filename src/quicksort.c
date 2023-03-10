@@ -29,19 +29,19 @@ void swap(void* a, void* b, size_t size) {
 }
 static int lomuto(void *array, int left, int right, size_t elem_sz,
                   int (*cmp) (const void*, const void*)) {
-        char *pivot = (char*) array + right * elem_sz;
-        int i = left - 1;
-        for (int j = left; j < right; j++) {
-                char *elem_j = (char*) array + j * elem_sz;
-                if (cmp(elem_j, pivot) <= 0) {
-                        i++;
-                        swap((char*) array + i * elem_sz, (char*) elem_j, elem_sz);
-                }
+    char *arr = array;
+    void *pivot = arr + (left * elem_sz);
+    int s = left;
+    for (int i = left + 1; i <= right; i++) {
+        void *current = arr + (i * elem_sz);
+        if (cmp(current, pivot) < 0) {
+            s++;
+            swap(arr + (s * elem_sz), current, elem_sz);
         }
-        swap((char*) array + (i+1) * elem_sz, pivot, elem_sz);
-        return i+1;
+    }
+    swap(arr + (left * elem_sz), arr + (s * elem_sz), elem_sz);
+    return s;
 }
-
 static void quicksort_helper(void *array, int left, int right, size_t elem_sz,
                              int (*cmp) (const void*, const void*)) {
         if (left < right) {
@@ -52,15 +52,17 @@ static void quicksort_helper(void *array, int left, int right, size_t elem_sz,
 }
 
 int int_cmp(const void *a, const void *b) {
-    int int_a = *((int*) a);
-    int int_b = *((int*) b);
+    const int int_a = *((int*) a);
+    const int int_b = *((int*) b);
     return (int_a > int_b) - (int_a < int_b);
 }
 
 int dbl_cmp(const void *a, const void *b) {
-    double double_a = *((double*) a);
-    double double_b = *((double*) b);
-    return (double_a > double_b) - (double_a < double_b);
+    const double double_a = *((double*) a);
+    const double double_b = *((double*) b);
+    if(double_a < double_b) return -1;
+    if(double_a > double_b) return 1;
+    return 0;
 }
 
 int str_cmp(const void *a, const void *b) {

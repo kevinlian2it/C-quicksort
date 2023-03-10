@@ -37,6 +37,10 @@ int main(int argc, char** argv) {
                                 display_usage();
                                 return EXIT_FAILURE;
                 }        }
+	if(flag_int + flag_db == 2) {
+		fprintf(stderr, "Error: Too many flags specified.\n");
+		return EXIT_FAILURE;
+	}
         if ((argc - optind) > 1) {
                 fprintf(stderr, "Error: Too many files specified.\n");
                 return EXIT_FAILURE;
@@ -45,63 +49,68 @@ int main(int argc, char** argv) {
                 filename = argv[optind];
         }
 	
-	FILE* input = stdin;
-	if (filename) {
-    		input = fopen(filename, "r");
-    		if (input == NULL) {
-        		fprintf(stderr, "Error: Cannot open '%s'. No such file or directory.\n", filename);
-        		return EXIT_FAILURE;
-    		}
-	}
-	void **input_arr = malloc(MAX_ELEMENTS * sizeof(void *));
-	int num_elements = 0;
-	char *buf = malloc(MAX_STRLEN);
-	char *line;
-	
-	if (!input) {
-	    fprintf(stderr, "Failed to open input file\n");
-	    exit(1);
-	}
+// Open the file for reading
+    FILE *fp;
+    if (filename) {
+        fp = fopen(filename, "r");
+        if (!fp) {
+            fprintf(stderr, "Error: Cannot open file '%s'. No such file or directory.\n", filename);
+            return EXIT_FAILURE;
+        }
+    } else {
+        fp = stdin;
+    }
 
-	while (num_elements < MAX_ELEMENTS && fgets(buf, MAX_STRLEN, input)) {
-	    line = strchr(buf, '\n');
-	    if (line) {
-	        *line = '\0';
-    		} 
-	    else {
-	        buf[MAX_STRLEN - 1] = '\0';
-	    }
-	    int c;
-	    while ((c = fgetc(input)) != '\n' && c != EOF);
-	    input_arr[num_elements] = strdup(buf);
-	    num_elements++;
-	}
-		
-	printf("Input array:\n");
-	for (int i = 0; i < num_elements; i++) {
-	    printf("%s\n", (char *)input_arr[i]);
-	}
-  	
-	printf("Weird input array:%s\n",(char *)input_arr);	
-       
+        // Read the data into an array
+    char** data = (char**) malloc(MAX_ELEMENTS * sizeof(char*));
+    int i;
+    for (i = 0; i < MAX_ELEMENTS; i++) {
+        char* str = (char*) malloc(MAX_STRLEN * sizeof(char));
+        if (!fgets(str, MAX_STRLEN, fp)) {
+            free(str);
+            break;
+        }
+        str[strcspn(str, "\n")] = 0; // Remove newline character
+        data[i] = str;
+    }
+    int num_elements = i;
+
+    // Sort the data
 	if (flag_int) {
-    		quicksort((int **)input_arr, num_elements, sizeof(int *), int_cmp);
-	} else if (flag_db) {
-    		quicksort((double **)input_arr, num_elements, sizeof(double *), dbl_cmp);
-	} else {
-    		quicksort((char **)input_arr, num_elements, sizeof(char *), str_cmp);
-	}
-	
-	printf("Array after sorted:\n");
-        for (int i = 0; i < num_elements; i++) {
-            printf("%s\n", (char *)input_arr[i]);
-        }
-
-	free(input_arr);
-	free(buf);
-
-        if(filename) {
-        	fclose(input);
-        }
-        return EXIT_SUCCESS;
+    int* int_data = (int*) malloc(num_elements * sizeof(int));
+    for (i = 0; i < num_elements; i++) {
+        int_data[i] = atoi(data[i]);
+    }
+    quicksort(int_data, num_elements, sizeof(int),int_cmp);
+    for (i = 0; i < num_elements; i++) {
+        printf("%d\n", int_data[i]);
+    }
+    free(int_data);
+} else if (flag_db) {
+    double* db_data = (double*) malloc(num_elements * sizeof(double));
+    for (i = 0; i < num_elements; i++) {
+        db_data[i] = atof(data[i]);
+    }
+    quicksort(db_data,num_elements,sizeof(double),dbl_cmp);
+    for (i = 0; i < num_elements; i++) {
+        printf("%f\n", db_data[i]);
+    }
+    free(db_data);
+} else {
+    quicksort(data,num_elements,sizeof(char *),str_cmp);
+    for (i = 0; i < num_elements; i++) {
+        printf("%s\n", data[i]);
+    }
+    for (i = 0; i < num_elements; i++) {
+        free(data[i]);
+    }
 }
+
+    // Close the file
+    if (filename) {
+        fclose(fp);
+    }
+
+    return EXIT_SUCCESS;
+}
+
