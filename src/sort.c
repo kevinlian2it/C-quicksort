@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     if (filename) {
         fp = fopen(filename, "r");
         if (!fp) {
-            fprintf(stderr, "Error: Cannot open file '%s'. No such file or directory.\n", filename);
+            fprintf(stderr, "Error: Cannot open file '%s'. %s.\n", filename,strerror(errno));
             return EXIT_FAILURE;
         }
     } else {
