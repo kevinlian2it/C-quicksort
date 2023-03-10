@@ -101,10 +101,11 @@ int main(int argc, char** argv) {
     for (i = 0; i < num_elements; i++) {
         printf("%s\n", data[i]);
     }
-    for (i = 0; i < num_elements; i++) {
-        free(data[i]);
-    }
 }
+    for (i = 0; i < num_elements; i++) {
+    	free(data[i]);
+    }
+    free(data);
 
     // Close the file
     if (filename) {
