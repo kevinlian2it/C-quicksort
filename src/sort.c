@@ -8,8 +8,8 @@
 #define MAX_STRLEN     64 // Not including '\0'
 #define MAX_ELEMENTS 1024
 
-void display_usage() {
-	printf("Usage: ./sort [-i|-d] [filename]\n");
+void display_usage(char* name) {
+	printf("Usage: %s [-i|-d] [filename]\n",name);
     	printf("   -i: Specifies the input contains ints.\n");
     	printf("   -d: Specifies the input contains doubles.\n");
     	printf("   filename: The file to sort. If no file is supplied, input is read from\n             stdin.\n");
@@ -31,10 +31,10 @@ int main(int argc, char** argv) {
                                 break;
                         case '?':
                                 fprintf(stderr, "Error: Unknown option '-%c' received.\n", optopt);
-                                display_usage();
+                                display_usage(argv[0]);
                                 return EXIT_FAILURE;
                         default:
-                                display_usage();
+                                display_usage(argv[0]);
                                 return EXIT_FAILURE;
                 }        }
 	if(flag_int + flag_db == 2) {
