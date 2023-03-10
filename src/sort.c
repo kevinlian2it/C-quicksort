@@ -70,7 +70,12 @@ int main(int argc, char** argv) {
             free(str);
             break;
         }
-        str[strcspn(str, "\n")] = 0; // Remove newline character
+        str[strcspn(str, "\n")] = 0;       // Remove newline character
+	if(strlen(str) == 0) {
+		free(str);
+		i--;
+		continue;
+	}
         data[i] = str;
     }
     int num_elements = i;
